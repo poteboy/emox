@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 /// [CSS Tokenization](https://www.w3.org/TR/CSS21/syndata.html#tokenization)
 pub enum TokenType {
     Ident,        // {ident}
@@ -56,5 +56,9 @@ impl Token {
             lexeme,
             line,
         }
+    }
+
+    pub fn parse(&mut self) {
+        // parse the token
     }
 }

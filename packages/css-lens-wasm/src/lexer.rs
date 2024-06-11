@@ -1,12 +1,30 @@
 use crate::token::{Token, TokenType};
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::collections::HashMap;
+
+lazy_static! {
+    static ref CLASS_SELECTOR: Regex = Regex::new(r"^\.[a-zA-Z_][a-zA-Z0-9_-]*").unwrap();
+    static ref ID_SELECTOR: Regex = Regex::new(r"^#[a-zA-Z_][a-zA-Z0-9_-]*").unwrap();
+    static ref IDENT: Regex = Regex::new(r"^[a-zA-Z_][a-zA-Z0-9_-]*").unwrap();
+    static ref ATKEYWORD: Regex = Regex::new(r"^@[a-zA-Z_][a-zA-Z0-9_-]*").unwrap();
+    static ref STRING: Regex = Regex::new(r#"^"[^"]*""#).unwrap();
+    static ref NUMBER: Regex = Regex::new(r"^[0-9]+").unwrap();
+    static ref PERCENTAGE: Regex = Regex::new(r"^[0-9]+%").unwrap();
+    static ref COLON: Regex = Regex::new(r"^:").unwrap();
+    static ref SEMICOLON: Regex = Regex::new(r"^;").unwrap();
+    static ref CURLY_LEFT: Regex = Regex::new(r"^\{").unwrap();
+    static ref CURLY_RIGHT: Regex = Regex::new(r"^\}").unwrap();
+    static ref PAREN_LEFT: Regex = Regex::new(r"^\(").unwrap();
+    static ref PAREN_RIGHT: Regex = Regex::new(r"^\)").unwrap();
+    static ref BRACKET_LEFT: Regex = Regex::new(r"^\[").unwrap();
+    static ref BRACKET_RIGHT: Regex = Regex::new(r"^\]").unwrap();
+    static ref S: Regex = Regex::new(r"^[ \t\r\n\f]+").unwrap();
+    static ref COMMENT: Regex = Regex::new(r"^/\*[^*]*\*+([^/*][^*]*\*+)*/").unwrap();
+}
 
 pub struct Lexer {
     source: String,
     tokens: Vec<Token>,
-    start: usize,
     current: usize,
     line: usize,
 }
@@ -16,7 +34,6 @@ impl Lexer {
         Self {
             source,
             tokens: Vec::new(),
-            start: 0,
             current: 0,
             line: 1,
         }
@@ -25,38 +42,23 @@ impl Lexer {
     pub fn build(&mut self) {
         // mappings of css token types to regex patterns
         let patterns: Vec<(TokenType, Regex)> = vec![
-            (
-                TokenType::ClassSelector,
-                Regex::new(r"^\.[a-zA-Z_][a-zA-Z0-9_-]*").unwrap(),
-            ),
-            (
-                TokenType::IdSelector,
-                Regex::new(r"^#[a-zA-Z_][a-zA-Z0-9_-]*").unwrap(),
-            ),
-            (
-                TokenType::Ident,
-                Regex::new(r"^[a-zA-Z_][a-zA-Z0-9_-]*").unwrap(),
-            ),
-            (
-                TokenType::Atkeyword,
-                Regex::new(r"^@[a-zA-Z_][a-zA-Z0-9_-]*").unwrap(),
-            ),
-            (TokenType::String, Regex::new(r#"^"[^"]*""#).unwrap()),
-            (TokenType::Number, Regex::new(r"^[0-9]+").unwrap()),
-            (TokenType::Percentage, Regex::new(r"^[0-9]+%").unwrap()),
-            (TokenType::Colon, Regex::new(r"^:").unwrap()),
-            (TokenType::Semicolon, Regex::new(r"^;").unwrap()),
-            (TokenType::CurlyLeft, Regex::new(r"^\{").unwrap()),
-            (TokenType::CurlyRight, Regex::new(r"^\}").unwrap()),
-            (TokenType::ParenLeft, Regex::new(r"^\(").unwrap()),
-            (TokenType::ParenRight, Regex::new(r"^\)").unwrap()),
-            (TokenType::BracketLeft, Regex::new(r"^\[").unwrap()),
-            (TokenType::BracketRight, Regex::new(r"^\]").unwrap()),
-            (TokenType::S, Regex::new(r"^[ \t\r\n\f]+").unwrap()),
-            (
-                TokenType::Comment,
-                Regex::new(r"^/\*[^*]*\*+([^/*][^*]*\*+)*/").unwrap(),
-            ),
+            (TokenType::ClassSelector, CLASS_SELECTOR.clone()),
+            (TokenType::IdSelector, ID_SELECTOR.clone()),
+            (TokenType::Ident, IDENT.clone()),
+            (TokenType::Atkeyword, ATKEYWORD.clone()),
+            (TokenType::String, STRING.clone()),
+            (TokenType::Number, NUMBER.clone()),
+            (TokenType::Percentage, PERCENTAGE.clone()),
+            (TokenType::Colon, COLON.clone()),
+            (TokenType::Semicolon, SEMICOLON.clone()),
+            (TokenType::CurlyLeft, CURLY_LEFT.clone()),
+            (TokenType::CurlyRight, CURLY_RIGHT.clone()),
+            (TokenType::ParenLeft, PAREN_LEFT.clone()),
+            (TokenType::ParenRight, PAREN_RIGHT.clone()),
+            (TokenType::BracketLeft, BRACKET_LEFT.clone()),
+            (TokenType::BracketRight, BRACKET_RIGHT.clone()),
+            (TokenType::S, S.clone()),
+            (TokenType::Comment, COMMENT.clone()),
         ];
 
         // iterate over the source string to store tokens when matched with a regex pattern
@@ -144,5 +146,7 @@ mod tests {
             .collect();
         // Assert: there should be 6 ident tokens
         assert_eq!(idents.len(), 6);
+
+        println!("{:?}", tokens);
     }
 }

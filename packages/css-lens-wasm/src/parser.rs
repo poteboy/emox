@@ -1,4 +1,5 @@
-use crate::token::Token;
+use crate::token::{self, Token, TokenType};
+use std::rc::Rc;
 
 pub struct Parser {
     /**
@@ -44,7 +45,15 @@ pub struct Parser {
  * <pseudo-element-selector> ::= "::" <ident>
  *
  * <declarations> ::= <declaration> | <declaration> <declarations>
- * <declaration> ::= <ident> ":" <ident> ";"
+ * <declaration> ::= <property> ":" <value> ";"
+ * <property> ::= <ident>
+ * <value> ::= <ident> | <number> | <percentage> | <length> | <color> | <string> | <function> | <url>
+ * <function> ::= <ident> "(" <value>* ")"
+ * <url> ::= "url(" <string> ")"
+ *
+ * <media-query> ::= "@media" <media-condition>
+ * <media-condition> ::= ::= <ident> | <ident> "(" <media-feature> ")"
+ * <media-feature> ::= <ident> ":" <value>
  *
  * ### Reference
  * - [CSS Syntax Module Level 3](https://www.w3.org/TR/css-syntax-3/)
@@ -52,7 +61,48 @@ pub struct Parser {
  * - [CSS.bnf](https://github.com/aptana/studio2/blob/master/tools/com.aptana.ide.parsing.tools/Parser%20Files/CSS.bnf)
  */
 impl Parser {
-    pub fn new(tokens: Vec<Token>) -> Self {
-        Parser { tokens, current: 0 }
+    pub fn new(tokens: Vec<Token>) -> Parser {
+        Self { tokens, current: 0 }
+    }
+
+    pub fn parse(&mut self) {
+        while !self.is_end() {}
+    }
+
+    pub fn parse_rule(&mut self) {}
+
+    /// Advance the current token index and return the previous token
+    pub fn advance(&mut self) -> Rc<Token> {
+        if !self.is_end() {
+            self.current += 1;
+        }
+        self.previous_token()
+    }
+
+    pub fn consume_next_token(&mut self, token_type: TokenType) -> Option<Rc<Token>> {
+        if self.check_token_type(token_type) {
+            return Some(self.advance());
+        }
+        None
+    }
+
+    /// Check if the current token is of the given type
+    pub fn check_token_type(&self, token_type: TokenType) -> bool {
+        if self.is_end() {
+            return false;
+        }
+        self.tokens[self.current].token_type == token_type
+    }
+
+    pub fn current_token(&self) -> Rc<Token> {
+        Rc::new(self.tokens[self.current].clone())
+    }
+
+    pub fn previous_token(&self) -> Rc<Token> {
+        Rc::new(self.tokens[self.current - 1].clone())
+    }
+
+    pub fn is_end(&self) -> bool {
+        self.current_token().token_type == TokenType::Eof
     }
 }
