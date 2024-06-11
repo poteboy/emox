@@ -31,34 +31,44 @@ pub struct Parser {
 
 /**
  *
- * BNF Grammar for CSS
- * <stylesheet> ::= <rule>*
- * <rule> ::= <selectors> "{" <declarations> "}" | <media-query> "{" <rule>* "}"
- * <selectors> ::= <selector> | <selector> <combinator> <selectors>
- * <combinator> ::= "+" | ">" | "~" | " "
- * <selector> ::= <simple-selector> | <selector> <simple-selector>
- * <simple-selector> ::= <type-selector> | <id-selector> | <class-selector> | <pseudo-class-selector> | <pseudo-element-selector>
- * <type-selector> ::= <ident>
- * <id-selector> ::= "#" <ident>
- * <class-selector> ::= "." <ident>
- * <pseudo-class-selector> ::= ":" <ident>
- * <pseudo-element-selector> ::= "::" <ident>
+ * ## Parse strategy
  *
- * <declarations> ::= <declaration> | <declaration> <declarations>
- * <declaration> ::= <property> ":" <value> ";"
- * <property> ::= <ident>
- * <value> ::= <ident> | <number> | <percentage> | <length> | <color> | <string> | <function> | <url>
- * <function> ::= <ident> "(" <value>* ")"
- * <url> ::= "url(" <string> ")"
+ * The CSS grammar is a LL(1) grammar, which means that we can parse it using a recursive descent parser.
+ * The reasoning behind this is that the CSS grammar is as below:
  *
- * <media-query> ::= "@media" <media-condition>
- * <media-condition> ::= ::= <ident> | <ident> "(" <media-feature> ")"
- * <media-feature> ::= <ident> ":" <value>
+ * Based on the [BNF grammar](./ast.rs), we can induce the following rules:
+ * First Set:
+ * - First(<stylesheet>) = First(<rule>) ∪ { EOF } = { identifier, '.', '#', '[', ':', '@media', EOF }
+ * - First(<rule>) = First(<selector>) ∪ { '@media' } = { identifier, '.', '#', '[', ':', '@media' }
+ * - First(<selectors>) = { identifier, '.', '#', '[', ':' }
+ * - First(<combinator>) = { '+', '>', '~', ' ' }
  *
- * ### Reference
- * - [CSS Syntax Module Level 3](https://www.w3.org/TR/css-syntax-3/)
- * - [Appendix G. Grammar of CSS 2.1](https://www.w3.org/TR/CSS21/grammar.html)
- * - [CSS.bnf](https://github.com/aptana/studio2/blob/master/tools/com.aptana.ide.parsing.tools/Parser%20Files/CSS.bnf)
+ * Follow Set:
+ * - Follow(<stylesheet>) = { EOF }
+ * - Follow(<rule>) = { EOF, '{' }
+ * - Follow(<selectors>) = { '{', '}' }
+ * - Follow(<combinator>) = { identifier, '.', '#', '[', ':' }
+ *
+ * Director Set:
+ * - Director(selector, element) = { identifier }
+ * - Director(selector, class) = { '.' }
+ * - Director(selector, id) = { '#' }
+ * - Director(selector, pseudo-class) = { ':' }
+ * - Director(selector, pseudo-element) = { '::' }
+ *
+ * Director(selector, element) ∩ Director(selector, class) = ∅
+ * Director(selector, element) ∩ Director(selector, id) = ∅
+ * Director(selector, element) ∩ Director(selector, pseudo-class) = ∅
+ * Director(selector, element) ∩ Director(selector, pseudo-element) = ∅
+ * Director(selector, class) ∩ Director(selector, id) = ∅
+ * Director(selector, class) ∩ Director(selector, pseudo-class) = ∅
+ * Director(selector, class) ∩ Director(selector, pseudo-element) = ∅
+ * Director(selector, id) ∩ Director(selector, pseudo-class) = ∅
+ * Director(selector, id) ∩ Director(selector, pseudo-element) = ∅
+ * Director(selector, pseudo-class) ∩ Director(selector, pseudo-element) = ∅
+ *
+ * Hence, CSS is a LL(1) grammar
+ *
  */
 impl Parser {
     pub fn new(tokens: Vec<Token>) -> Parser {
@@ -70,6 +80,23 @@ impl Parser {
     }
 
     pub fn parse_rule(&mut self) {}
+
+    // pub fn parse_value(&mut self) -> Option<Rc<Token>> {
+    //     if self.match_token(&[TokenType::Ident]) {
+    //         return Some(self.previous_token());
+    //     }
+    // }
+
+    /// Check if the current token matches any of the given token types
+    pub fn match_token(&mut self, token_types: &[TokenType]) -> bool {
+        for token_type in token_types {
+            if self.check_token_type(token_type.clone()) {
+                self.advance();
+                return true;
+            }
+        }
+        false
+    }
 
     /// Advance the current token index and return the previous token
     pub fn advance(&mut self) -> Rc<Token> {
