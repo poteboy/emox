@@ -26,6 +26,14 @@ impl Lexer {
         // mappings of css token types to regex patterns
         let patterns: Vec<(TokenType, Regex)> = vec![
             (
+                TokenType::ClassSelector,
+                Regex::new(r"^\.[a-zA-Z_][a-zA-Z0-9_-]*").unwrap(),
+            ),
+            (
+                TokenType::IdSelector,
+                Regex::new(r"^#[a-zA-Z_][a-zA-Z0-9_-]*").unwrap(),
+            ),
+            (
                 TokenType::Ident,
                 Regex::new(r"^[a-zA-Z_][a-zA-Z0-9_-]*").unwrap(),
             ),
@@ -60,16 +68,17 @@ impl Lexer {
                 if let Some(mat) = regex.find(remaining) {
                     let lexeme = &remaining[mat.start()..mat.end()];
 
-                    // increment line count if token type is whitespace
-                    if token_type == &TokenType::S {
-                        self.line += lexeme.matches('\n').count();
-                    }
-
                     self.tokens.push(Token::new(
                         token_type.clone(),
                         lexeme.to_string(),
                         self.line,
                     ));
+
+                    // increment line count if token type is whitespace & contains newline
+                    if token_type == &TokenType::S {
+                        self.line += lexeme.matches('\n').count();
+                    }
+
                     self.current += lexeme.len();
                     matched = true;
                     break;
@@ -97,6 +106,7 @@ mod tests {
 
     #[test]
     fn test_lexer() {
+        // Arrange
         let source = r#"
             .container {
                 display: flex;
@@ -108,6 +118,31 @@ mod tests {
         lexer.build();
         let tokens = lexer.tokens();
 
-        println!("{:#?}", tokens)
+        // Act: get the last token
+        let last_token = tokens.last().cloned().unwrap().token_type;
+        // Assert: the last token should be Eof
+        assert_eq!(last_token, TokenType::Eof);
+
+        // Act: get the first class selector token
+        let class_selector = tokens
+            .iter()
+            .find(|t| t.token_type == TokenType::ClassSelector)
+            .unwrap();
+        // Assert: the first class selector token should be .container
+        assert_eq!(class_selector.lexeme, ".container");
+
+        // Act: get all ident tokens
+        let idents: Vec<Token> = tokens
+            .iter()
+            .filter_map(|t| {
+                if t.token_type == TokenType::Ident {
+                    Some(t.clone())
+                } else {
+                    None
+                }
+            })
+            .collect();
+        // Assert: there should be 6 ident tokens
+        assert_eq!(idents.len(), 6);
     }
 }

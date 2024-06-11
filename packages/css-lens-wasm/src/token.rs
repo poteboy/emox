@@ -30,6 +30,16 @@ pub enum TokenType {
     DashMatch,    // |=
     Delim, // any other character not matched by the above rules, and neither a single nor a double quote
     Eof,   // EOF
+
+    // below are not part of the CSS Tokenization specification but are used in the lexer & parser
+    ClassSelector, // .{ident}
+    IdSelector,    // #{ident}
+    PseudoClass,   // :{ident}
+    PseudoElement, // ::{ident}
+    Comma,         // ,
+    Plus,          // +
+    Greater,       // >
+    Tilde,         // ~
 }
 
 #[derive(Debug, Clone)]
