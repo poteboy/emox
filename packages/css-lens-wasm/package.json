@@ -5,6 +5,14 @@
   "description": "",
   "license": "MIT",
   "type": "module",
+  "main": "pkg/node/index.js",
+  "exports": {
+    ".": {
+      "import": "./pkg/node/index.js",
+      "require": "./pkg/node/index.js",
+      "types": "./pkg/node/index.d.ts"
+    }
+  },
   "scripts": {
     "build": "wasm-pack build --target web --out-dir ./pkg/esm --out-name index && wasm-pack build --target nodejs --out-dir ./pkg/node --out-name index && node script.js"
   },

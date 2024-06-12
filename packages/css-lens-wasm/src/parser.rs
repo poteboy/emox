@@ -118,7 +118,7 @@ impl Parser {
     }
 
     // <selectors> ::= <selector> | <selector> <combinator> <selectors>
-    fn parse_selectors(&mut self) -> Vec<Selector> {
+    pub fn parse_selectors(&mut self) -> Vec<Selector> {
         let mut selectors = Vec::new();
         selectors.push(self.parse_selector());
         while self.match_token(&[TokenType::Comma]) {

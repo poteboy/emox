@@ -31,6 +31,9 @@
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
     "lint": "biome lint --error-on-warnings ./src"
   },
+  "dependencies": {
+    "@css-lens/wasm": "workspace:^"
+  },
   "devDependencies": {
     "@types/vscode": "^1.90.0",
     "@types/node": "18.x",

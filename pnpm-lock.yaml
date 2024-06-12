@@ -21,6 +21,10 @@ importers:
         version: 0.12.1
 
   packages/vscode-css-lens:
+    dependencies:
+      '@css-lens/wasm':
+        specifier: workspace:^
+        version: link:../css-lens-wasm
     devDependencies:
       '@types/node':
         specifier: 18.x
