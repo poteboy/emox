@@ -1,7 +1,9 @@
 /**
  * ## BNF Grammar for CSS
  * <stylesheet> ::= <rule>*
- * <rule> ::= <selectors> "{" <declarations> "}" | <media-query> "{" <rule>* "}"
+ * <rule> ::= <style-rule> | <media-rule>
+ * <style-rule> ::= <selectors> "{" <declarations> "}"
+ * <media-rule> ::= <media-query> "{" <rule>* "}"
  * <selectors> ::= <selector> | <selector> <combinator> <selectors>
  * <combinator> ::= "+" | ">" | "~" | " "
  * <selector> ::= <simple-selector> | <selector> <simple-selector>
@@ -41,7 +43,11 @@ pub enum Rule {
 }
 
 #[derive(Debug, Clone)]
-pub struct StyleRule {}
+pub struct StyleRule {
+    pub selector_text: String,
+    pub selectors: Vec<Selector>,
+    pub declarations: Vec<Declaration>,
+}
 
 // #[derive(Debug, Clone)]
 // pub struct MediaRule {
@@ -70,17 +76,17 @@ pub enum SimpleSelector {
 
 #[derive(Debug, Clone)]
 pub struct TypeSelector {
-    pub ident: String,
+    pub element: String,
 }
 
 #[derive(Debug, Clone)]
 pub struct IdSelector {
-    pub ident: String,
+    pub id: String,
 }
 
 #[derive(Debug, Clone)]
 pub struct ClassSelector {
-    pub ident: String,
+    pub class_name: String,
 }
 
 #[derive(Debug, Clone)]

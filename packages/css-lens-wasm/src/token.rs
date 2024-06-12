@@ -32,14 +32,14 @@ pub enum TokenType {
     Eof,   // EOF
 
     // below are not part of the CSS Tokenization specification but are used in the lexer & parser
-    ClassSelector, // .{ident}
-    IdSelector,    // #{ident}
-    PseudoClass,   // :{ident}
-    PseudoElement, // ::{ident}
-    Comma,         // ,
-    Plus,          // +
-    Greater,       // >
-    Tilde,         // ~
+    ClassSelector,         // .{ident}
+    IdSelector,            // #{ident}
+    PseudoClassSelector,   // :{ident}
+    PseudoElementSelector, // ::{ident}
+    Comma,                 // ,
+    Plus,                  // +
+    Greater,               // >
+    Tilde,                 // ~
 }
 
 #[derive(Debug, Clone)]

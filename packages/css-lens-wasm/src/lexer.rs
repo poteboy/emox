@@ -21,6 +21,10 @@ lazy_static! {
     static ref BRACKET_RIGHT: Regex = Regex::new(r"^\]").unwrap();
     static ref S: Regex = Regex::new(r"^[ \t\r\n\f]+").unwrap();
     static ref COMMENT: Regex = Regex::new(r"^/\*[^*]*\*+([^/*][^*]*\*+)*/").unwrap();
+    static ref COMMA: Regex = Regex::new(r"^,").unwrap();
+    static ref PLUS: Regex = Regex::new(r"^\+").unwrap();
+    static ref GREATER: Regex = Regex::new(r"^>").unwrap();
+    static ref TILDE: Regex = Regex::new(r"^~").unwrap();
 }
 
 pub struct Lexer {
@@ -63,6 +67,10 @@ impl Lexer {
             (TokenType::BracketRight, BRACKET_RIGHT.clone()),
             (TokenType::S, S.clone()),
             (TokenType::Comment, COMMENT.clone()),
+            (TokenType::Comma, COMMA.clone()),
+            (TokenType::Plus, PLUS.clone()),
+            (TokenType::Greater, GREATER.clone()),
+            (TokenType::Tilde, TILDE.clone()),
         ];
 
         // iterate over the source string to store tokens when matched with a regex pattern
