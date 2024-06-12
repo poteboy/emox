@@ -1,3 +1,5 @@
+use crate::helper::ToString;
+
 /**
  * ## BNF Grammar for CSS
  * <stylesheet> ::= <rule>*
@@ -65,6 +67,16 @@ pub struct Selector {
     pub simple_selectors: Vec<SimpleSelector>,
 }
 
+impl ToString for Selector {
+    fn to_string(&self) -> String {
+        self.simple_selectors
+            .iter()
+            .map(|simple_selector| simple_selector.to_string())
+            .collect::<Vec<String>>()
+            .join(" ")
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum SimpleSelector {
     Type(TypeSelector),
@@ -72,6 +84,22 @@ pub enum SimpleSelector {
     Class(ClassSelector),
     PseudoClass(PseudoClassSelector),
     PseudoElement(PseudoElementSelector),
+}
+
+impl ToString for SimpleSelector {
+    fn to_string(&self) -> String {
+        match self {
+            SimpleSelector::Type(type_selector) => type_selector.element.clone(),
+            SimpleSelector::Id(id_selector) => id_selector.id.to_string(),
+            SimpleSelector::Class(class_selector) => class_selector.class_name.to_string(),
+            SimpleSelector::PseudoClass(pseudo_class_selector) => {
+                pseudo_class_selector.ident.to_string()
+            }
+            SimpleSelector::PseudoElement(pseudo_element_selector) => {
+                pseudo_element_selector.ident.to_string()
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -109,6 +137,16 @@ pub struct Declaration {
 #[derive(Debug, Clone)]
 pub struct Value {
     pub value: LiteralValue,
+}
+impl ToString for Value {
+    fn to_string(&self) -> String {
+        match &self.value {
+            LiteralValue::Ident(ident) => ident.clone(),
+            LiteralValue::Number(number) => number.clone(),
+            LiteralValue::Dimension(dimension) => dimension.clone(),
+            LiteralValue::Percentage(percentage) => percentage.clone(),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]

@@ -1,5 +1,6 @@
-mod ast;
+mod bnf;
 mod generator;
+mod helper;
 mod lexer;
 mod parser;
 mod token;

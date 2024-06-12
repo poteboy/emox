@@ -4,8 +4,12 @@
   "author": "poteboy",
   "description": "",
   "license": "MIT",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "wasm-pack build --target web --out-dir ./pkg/esm --out-name index && wasm-pack build --target nodejs --out-dir ./pkg/node --out-name index && node script.js"
   },
-  "keywords": []
+  "keywords": [],
+  "devDependencies": {
+    "wasm-pack": "^0.12.1"
+  }
 }

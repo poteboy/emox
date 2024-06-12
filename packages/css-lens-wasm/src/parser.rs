@@ -1,8 +1,9 @@
-use crate::ast::{
+use crate::bnf::{
     ClassSelector, Declaration, IdSelector, LiteralValue, PseudoClassSelector,
     PseudoElementSelector, Rule, Selector, SimpleSelector, StyleRule, StyleSheet, TypeSelector,
     Value,
 };
+use crate::helper::ToString;
 use crate::token::{self, Token, TokenType};
 use std::rc::Rc;
 
@@ -105,22 +106,7 @@ impl Parser {
 
         let selector_text = selectors
             .iter()
-            .map(|selector| {
-                let Selector { simple_selectors } = selector;
-                simple_selectors
-                    .iter()
-                    .map(|simple_selector| match simple_selector {
-                        SimpleSelector::Type(TypeSelector { element }) => element.clone(),
-                        SimpleSelector::Class(ClassSelector { class_name }) => class_name.clone(),
-                        SimpleSelector::Id(IdSelector { id }) => id.clone(),
-                        SimpleSelector::PseudoClass(PseudoClassSelector { ident }) => ident.clone(),
-                        SimpleSelector::PseudoElement(PseudoElementSelector { ident }) => {
-                            ident.clone()
-                        }
-                    })
-                    .collect::<Vec<String>>()
-                    .join(" ")
-            })
+            .map(|selector| selector.to_string())
             .collect::<Vec<String>>()
             .join(" ");
 
