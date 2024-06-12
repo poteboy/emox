@@ -1,5 +1,3 @@
-use crate::token::{Token, TokenType};
-
 /**
  * ## BNF Grammar for CSS
  * <stylesheet> ::= <rule>*
@@ -39,8 +37,78 @@ pub struct StyleSheet {
 #[derive(Debug, Clone)]
 pub enum Rule {
     StyleRule(StyleRule),
-    MediaQuery,
+    // MediaQuery, TODO
 }
 
 #[derive(Debug, Clone)]
 pub struct StyleRule {}
+
+// #[derive(Debug, Clone)]
+// pub struct MediaRule {
+//     pub condition: MediaCondition,
+//     pub rules: Vec<Rule>,
+// }
+
+// pub struct MediaCondition {
+//     pub ident: String,
+//     pub feature: Option<MediaFeature>,
+// }
+
+#[derive(Debug, Clone)]
+pub struct Selector {
+    pub simple_selectors: Vec<SimpleSelector>,
+}
+
+#[derive(Debug, Clone)]
+pub enum SimpleSelector {
+    Type(TypeSelector),
+    Id(IdSelector),
+    Class(ClassSelector),
+    PseudoClass(PseudoClassSelector),
+    PseudoElement(PseudoElementSelector),
+}
+
+#[derive(Debug, Clone)]
+pub struct TypeSelector {
+    pub ident: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct IdSelector {
+    pub ident: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct ClassSelector {
+    pub ident: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct PseudoClassSelector {
+    pub ident: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct PseudoElementSelector {
+    pub ident: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct Declaration {
+    pub property: String,
+    pub value: Value,
+    pub css_text: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct Value {
+    pub value: LiteralValue,
+}
+
+#[derive(Debug, Clone)]
+pub enum LiteralValue {
+    Ident(String),
+    Number(String),     // TODO: Use f64
+    Dimension(String),  // TODO: Use f64 + unit
+    Percentage(String), // TODO: Use f64 + unit
+}

@@ -10,6 +10,7 @@ lazy_static! {
     static ref STRING: Regex = Regex::new(r#"^"[^"]*""#).unwrap();
     static ref NUMBER: Regex = Regex::new(r"^[0-9]+").unwrap();
     static ref PERCENTAGE: Regex = Regex::new(r"^[0-9]+%").unwrap();
+    static ref DIMENSION: Regex = Regex::new(r"^[0-9]+[a-zA-Z_][a-zA-Z0-9_-]*").unwrap();
     static ref COLON: Regex = Regex::new(r"^:").unwrap();
     static ref SEMICOLON: Regex = Regex::new(r"^;").unwrap();
     static ref CURLY_LEFT: Regex = Regex::new(r"^\{").unwrap();
@@ -47,8 +48,11 @@ impl Lexer {
             (TokenType::Ident, IDENT.clone()),
             (TokenType::Atkeyword, ATKEYWORD.clone()),
             (TokenType::String, STRING.clone()),
-            (TokenType::Number, NUMBER.clone()),
+            // Percentage & Dimension must come before Number to avoid matching the number part of the dimension
+            // Maybe we should use PEG parser to skip lexing, but for now, this is fine
             (TokenType::Percentage, PERCENTAGE.clone()),
+            (TokenType::Dimension, DIMENSION.clone()),
+            (TokenType::Number, NUMBER.clone()),
             (TokenType::Colon, COLON.clone()),
             (TokenType::Semicolon, SEMICOLON.clone()),
             (TokenType::CurlyLeft, CURLY_LEFT.clone()),
@@ -70,16 +74,18 @@ impl Lexer {
                 if let Some(mat) = regex.find(remaining) {
                     let lexeme = &remaining[mat.start()..mat.end()];
 
+                    // increment line count if token type is whitespace & contains newline
+                    // we do not store whitespace tokens
+                    if token_type == &TokenType::S {
+                        self.line += lexeme.matches('\n').count();
+                        break;
+                    }
+
                     self.tokens.push(Token::new(
                         token_type.clone(),
                         lexeme.to_string(),
                         self.line,
                     ));
-
-                    // increment line count if token type is whitespace & contains newline
-                    if token_type == &TokenType::S {
-                        self.line += lexeme.matches('\n').count();
-                    }
 
                     self.current += lexeme.len();
                     matched = true;
@@ -114,6 +120,7 @@ mod tests {
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                font-size: 16px;
             }
         "#;
         let mut lexer = Lexer::new(source.to_string());
@@ -144,9 +151,8 @@ mod tests {
                 }
             })
             .collect();
-        // Assert: there should be 6 ident tokens
-        assert_eq!(idents.len(), 6);
-
-        println!("{:?}", tokens);
+        // Assert: there should be 7 ident tokens
+        // 16px is considered as Dimension token
+        assert_eq!(idents.len(), 7);
     }
 }

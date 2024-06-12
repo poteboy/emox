@@ -1,3 +1,4 @@
+use crate::ast::{Declaration, LiteralValue, Value};
 use crate::token::{self, Token, TokenType};
 use std::rc::Rc;
 
@@ -11,18 +12,14 @@ pub struct Parser {
     `tokens` will be a vector of the following tokens:
 
     ```rust
-    Token { token_type: ClassSelector, lexeme: ".class", line: 1 }
-    Token { token_type: S, lexeme: " ", line: 1 }
-    Token { token_type: CurlyLeft, lexeme: "{", line: 1 }
-    Token { token_type: S, lexeme: "\n            ", line: 1 }
-    Token { token_type: Ident, lexeme: "color", line: 2 }
-    Token { token_type: Colon, lexeme: ":", line: 2 }
-    Token { token_type: S, lexeme: " ", line: 2 }
-    Token { token_type: Ident, lexeme: "red", line: 2 }
-    Token { token_type: Semicolon, lexeme: ";", line: 2 }
-    Token { token_type: S, lexeme: "\n        ", line: 2 }
-    Token { token_type: CurlyRight, lexeme: "}", line: 3 }
-    Token { token_type: Eof, lexeme: "", line: 3 }
+    Token { token_type: ClassSelector, lexeme: ".class", line: 2 }
+    Token { token_type: CurlyLeft, lexeme: "{", line: 2 }
+    Token { token_type: Ident, lexeme: "color", line: 3 }
+    Token { token_type: Colon, lexeme: ":", line: 3 }
+    Token { token_type: Ident, lexeme: "red", line: 3 }
+    Token { token_type: Semicolon, lexeme: ";", line: 3 }
+    Token { token_type: CurlyRight, lexeme: "}", line: 4 }
+    Token { token_type: Eof, lexeme: "", line: 5 }
     ```
     */
     tokens: Vec<Token>,
@@ -81,11 +78,64 @@ impl Parser {
 
     pub fn parse_rule(&mut self) {}
 
-    // pub fn parse_value(&mut self) -> Option<Rc<Token>> {
-    //     if self.match_token(&[TokenType::Ident]) {
-    //         return Some(self.previous_token());
-    //     }
-    // }
+    pub fn parse_declarations(&mut self) -> Vec<Declaration> {
+        let mut declarations = Vec::new();
+        while !self.check_token_type(TokenType::CurlyRight) && !self.is_end() {
+            declarations.push(self.parse_declaration());
+        }
+        declarations
+    }
+
+    pub fn parse_declaration(&mut self) -> Declaration {
+        let property = self
+            .consume_next_token(TokenType::Ident)
+            .expect("Expected property name")
+            .lexeme
+            .clone();
+        self.consume_next_token(TokenType::Colon)
+            .expect("Expected colon");
+        let value = self.parse_value();
+        self.consume_next_token(TokenType::Semicolon)
+            .expect("Expected semicolon");
+
+        let css_text = property.clone()
+            + ": "
+            + &match value.value.clone() {
+                LiteralValue::Dimension(val)
+                | LiteralValue::Percentage(val)
+                | LiteralValue::Number(val)
+                | LiteralValue::Ident(val) => val,
+            }
+            + ";";
+
+        Declaration {
+            property,
+            value,
+            css_text,
+        }
+    }
+
+    pub fn parse_value(&mut self) -> Value {
+        if let Some(token) = self.consume_next_token(TokenType::Ident) {
+            Value {
+                value: LiteralValue::Ident(token.lexeme.clone()),
+            }
+        } else if let Some(token) = self.consume_next_token(TokenType::Number) {
+            Value {
+                value: LiteralValue::Number(token.lexeme.clone()),
+            }
+        } else if let Some(token) = self.consume_next_token(TokenType::Percentage) {
+            Value {
+                value: LiteralValue::Percentage(token.lexeme.clone()),
+            }
+        } else if let Some(token) = self.consume_next_token(TokenType::Dimension) {
+            Value {
+                value: LiteralValue::Dimension(token.lexeme.clone()),
+            }
+        } else {
+            panic!("Expected value");
+        }
+    }
 
     /// Check if the current token matches any of the given token types
     pub fn match_token(&mut self, token_types: &[TokenType]) -> bool {
@@ -106,6 +156,7 @@ impl Parser {
         self.previous_token()
     }
 
+    // Consume the next token if it matches the given token type
     pub fn consume_next_token(&mut self, token_type: TokenType) -> Option<Rc<Token>> {
         if self.check_token_type(token_type) {
             return Some(self.advance());
@@ -127,6 +178,10 @@ impl Parser {
 
     pub fn previous_token(&self) -> Rc<Token> {
         Rc::new(self.tokens[self.current - 1].clone())
+    }
+
+    pub fn next_token(&self) -> Rc<Token> {
+        Rc::new(self.tokens[self.current + 1].clone())
     }
 
     pub fn is_end(&self) -> bool {
