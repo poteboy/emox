@@ -163,4 +163,27 @@ mod tests {
         // 16px is considered as Dimension token
         assert_eq!(idents.len(), 7);
     }
+
+    #[test]
+    fn complex_css() {
+        let source = r#"
+            .container {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-size: 16px;
+            }
+
+            @media screen and (max-width: 600px) {
+                .container {
+                    font-size: 14px;
+                }
+            }
+        "#
+        .to_string();
+        let mut lexer = Lexer::new(source.to_string());
+        lexer.build();
+        let tokens = lexer.tokens();
+        println!("{:#?}", tokens);
+    }
 }
