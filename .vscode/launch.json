@@ -9,10 +9,8 @@
       "name": "Launch Extension",
       "type": "extensionHost",
       "request": "launch",
-      "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-css-lens"
-      ],
-      "outFiles": ["${workspaceFolder}/packages/vscode-css-lens/dist/**/*.js"],
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/vscode"],
+      "outFiles": ["${workspaceFolder}/packages/vscode/dist/**/*.js"],
       "sourceMaps": true,
       "preLaunchTask": "${defaultBuildTask}"
     }

@@ -1,0 +1,16 @@
+[package]
+name = "emox_wasm"
+version = "0.0.1"
+publish = false
+authors.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+emox_parser = { workspace = true }
+tsify = { workspace = true }
+wasm-bindgen = {  workspace = true }

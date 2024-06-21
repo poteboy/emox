@@ -1,4 +1,5 @@
 use crate::token::{Token, TokenType};
+
 use lazy_static::lazy_static;
 use regex::Regex;
 

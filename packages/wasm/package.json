@@ -1,0 +1,23 @@
+{
+  "name": "@emox/wasm",
+  "version": "1.0.0",
+  "author": "poteboy",
+  "description": "",
+  "license": "MIT",
+  "type": "module",
+  "main": "pkg/node/index.js",
+  "exports": {
+    ".": {
+      "import": "./pkg/esm/index.js",
+      "require": "./pkg/node/index.js",
+      "types": "./pkg/esm/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "wasm-pack build ../../crates/wasm --target web --out-dir ../../packages/wasm/pkg/esm --out-name index && wasm-pack build ../../crates/wasm --target nodejs --out-dir ../../packages/wasm/pkg/node --out-name index && node script.js"
+  },
+  "keywords": [],
+  "devDependencies": {
+    "wasm-pack": "^0.12.1"
+  }
+}
