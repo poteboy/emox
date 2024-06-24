@@ -1,0 +1,13 @@
+[package]
+name = "emox_import"
+version = "0.0.1"
+publish = false
+authors.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+lazy_static =  { workspace = true }
+regex =  { workspace = true }
+serde = { workspace = true, features = ["derive"] }

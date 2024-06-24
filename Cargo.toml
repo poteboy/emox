@@ -13,6 +13,7 @@ repository = "https://github.com/poteboy/emox"
 # workspace crates
 emox_parser = { path = "crates/parser" }
 emox_wasm = { path = "crates/wasm" }
+exmox_import = { path = "crates/import" }
 
 # external crates
 wasm-bindgen = "0.2.84"
